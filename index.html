@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<!-- Export by pandoc -D revealjs, pandoc version 2.14.03 -->
+<!-- pandoc-types 1.22.1, texmath 0.12.3.2, skylighting 0.10.5.2, -->
+<!-- citeproc 0.4.0.1, ipynb 0.1.0.2 -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="  Xie Benyi1,2（谢本壹）     🧑Yan Yue1,2, 🧑Yan Chenghao1,2, 🧑Tao Sicheng3, 🧑Zhang Zhuangzhuang3, 🧑Li Xinyu1,2, 🧑Lan Yanzhi1,2, 🧑Wu Xiang1,2, 👨Liu Tianyi4, 👩Zhang Tingting1,5, 👨‍🏫Zhang Fuxin1,2      计算所1 ,  国科大2 ,  中科大3 ,  UTSA4 ,  龙芯5 ">
+  <title> An Instruction Inflation Analyzing Framework for Dynamic Binary Translators     （动态二进制翻译器的指令膨胀分析框架） </title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimal-ui">
+  <link rel="stylesheet" href="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/dist/reset.css">
+  <link rel="stylesheet" href="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/dist/theme/white.css" id="theme">
+  <link rel="stylesheet" href="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-plugins/chalkboard/style.css">
+  <link rel="stylesheet" href="https://xieby1.github.io/markdown_revealjs/lib/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-plugins/customcontrols/style.css">
+  <link rel="stylesheet" href="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-simplemenu/simpleMenu.css">
+<!-- revealjs.sh customized styles -->
+<style>
+.reveal section img {
+    margin: 0 0;
+    /* override default border color */
+    border: transparent;
+}
+
+.reveal p {
+    margin: 0 0;
+}
+
+/* no margin in styled code div, the same to unstyled code */
+div.sourceCode {
+    margin: 0;
+}
+.reveal pre {
+    display: flex;
+    justify-content: center;
+}
+
+.reveal pre code {
+    max-height: none;
+}
+
+a.sourceLine {
+    /* styled code line is higher than unstyled, make them the same */
+    line-height: 0;
+}
+
+[role="doc-toc"] > ul {
+    /* multiple column in first level TOC */
+    column-width:  290px ;
+    width: 100%;
+    column-rule-style: solid;
+    /* no margin in first level TOC */
+    margin:  0 0 0 0 ;
+}
+
+[role="doc-toc"] ul {
+    /* no bullet */
+    list-style-type: none;
+    /* no margin, no padding in TOC ul */
+    margin-block-start: 0;
+    margin-block-end: 0;
+    padding-inline-start: 0;
+}
+
+/* change first level toc background */
+nav > ul > li > a {
+    background: lightgrey;
+}
+
+/* Long table overflow */
+/* https://stackoverflow.com/questions/23989463/how-to-set-tbody-height-with-overflow-scroll */
+thead tr th {
+    position: sticky;
+    top: 0;
+}
+table {
+    border-collapse: collapse;
+}
+
+/* Center the table, make the scroll bar right beside the table */
+/* https://www.joshwcomeau.com/css/center-a-div/ */
+.longtable {
+    overflow-y: auto;
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* enable multiple columns */
+/* https://stackoverflow.com/questions/30861845 */
+.container {
+  display: flex;
+  align-items: center;
+}
+.col {
+  flex: auto;
+}
+
+/* not to capitalise my titles */
+/* https://stackoverflow.com/questions/47057398 */
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5 {
+    text-transform: none;
+}
+
+/* make customcontrols hiden when print-pdf */
+@media print {
+  .slide-menu-button,
+  #customcontrols {
+    visibility: hidden;
+  }
+}
+
+/* make customcontrols always collapse */
+@media only screen and (min-width: 500px) {
+  #customcontrols > button {
+      display: block;
+  }
+  #customcontrols > ul {
+    position: fixed;
+    left: 54px;
+    bottom: 64px;
+    list-style-type: none;
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid var(--r-link-color);
+    border-radius: 5px;
+    padding: 10px;
+    background-color: var(--r-background-color)
+  }
+}
+</style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide"
+         data-sminvisible=true>
+  <h1 class="title"><span style="font-size:0.6em;"> An Instruction
+Inflation Analyzing Framework for Dynamic Binary Translators </span>
+<br/> <span style="font-size:0.5em;">
+（动态二进制翻译器的指令膨胀分析框架） <span></h1>
+  <p class="author"><span style="line-height:2;">
+<img src="https://xieby1.github.io/markdown_revealjs/images/me.png" style="height:1em;">
+Xie Benyi<span class="cite">1,2</span><span
+style="font-size:0.9em;">（谢本壹）</span> </span> <br/> <span
+style="font-size:0.7em;"> 🧑Yan Yue<span class="cite">1,2</span>, 🧑Yan
+Chenghao<span class="cite">1,2</span>, 🧑Tao Sicheng<span
+class="cite">3</span>, 🧑Zhang Zhuangzhuang<span class="cite">3</span>,
+🧑Li Xinyu<span class="cite">1,2</span>, 🧑Lan Yanzhi<span
+class="cite">1,2</span>, 🧑Wu Xiang<span class="cite">1,2</span>, 👨Liu
+Tianyi<span class="cite">4</span>, 👩Zhang Tingting<span
+class="cite">1,5</span>, 👨‍🏫Zhang Fuxin<span class="cite">1,2</span>
+</span> <br/> <span style="color:#01378c; font-size:0.8em;">
+<img src="https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/ict_logo.svg" style="height:0.8em; margin:0;">
+计算所<span class="cite">1</span> ,
+<img src="https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/ucas_logo.svg" style="height:0.8em; margin:0;">
+国科大<span class="cite">2</span> ,
+<img src="./images/ustc_logo_fig.svg" style="height:0.8em; margin:0;">
+中科大<span class="cite">3</span> ,
+<img src="./images/UTSA_Athletics_logo.svg" style="height:0.8em; margin:0;">
+UTSA<span class="cite">4</span> ,
+<img src="https://xieby1.github.io/markdown_revealjs/themes/loongson/logo.png" style="height:0.8em; margin:0;">
+龙芯<span class="cite">5</span> </span></p>
+  <p class="date"><span style="line-height:2;"> ChinaSys 2024 2024.6.16
+</span></p>
+</section>
+
+<section id="toc" class="title-slide slide level1" data-number="1"
+data-sminvisible="true" data-name="1.TOC">
+<h1 data-number="1" data-sminvisible="true" data-name="1.TOC"><span
+class="header-section-number">1</span> TOC</h1>
+<style>
+.reveal h1.title {
+  line-height: 0.6em;
+}
+.cite {
+  font-size: 0.4em;
+  vertical-align: top;
+}
+.ref {
+  font-size: 0.4em;
+}
+</style>
+<ol type="1">
+<li>TOC</li>
+<li>Background</li>
+<li>Problem</li>
+<li>Related Work</li>
+<li>Design</li>
+<li>Evaluation</li>
+<li>Application</li>
+<li>Summary</li>
+</ol>
+</section>
+
+<section>
+<section id="background" class="title-slide slide level1"
+data-number="2" data-stack-name="2.Background">
+<h1 data-number="2" data-stack-name="2.Background"><span
+class="header-section-number">2</span> Background</h1>
+<p><strong>Dynamic Binary Translator (DBT)</strong></p>
+<div class="container" style="align-items: flex-start;">
+<div class="col">
+<p><img src="./pictures/dbt.svg" style="height: 300px;"></p>
+<p><span style="font-size: 0.5em;"><strong>Translation Block
+(TB)</strong>: control-transfer-ended instruction block</span></p>
+</div>
+<div class="col" style="font-size: 0.9em;">
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Insn <span class="op">**</span> trans<span class="op">(</span>Insn <span class="op">*</span>ginsn<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">switch</span> <span class="op">(</span>ginsn<span class="op">-&gt;</span><span class="dt">op_type</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> X86_ADD<span class="op">:</span> <span class="cf">case</span> X86_SUB<span class="op">:</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> trans_addsub<span class="op">(</span>ginsn<span class="op">);</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> X86_MOV<span class="op">:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> trans_mov<span class="op">(</span>ginsn<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> X86_CALL<span class="op">:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> trans_call<span class="op">(</span>ginsn<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// other cases ...</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+</div>
+</div>
+</section>
+<section id="overview-dbts" class="title-slide slide level2"
+data-number="2.1">
+<h2 data-number="2.1"><span class="header-section-number">2.1</span>
+Overview: DBTs</h2>
+<div class="container" style="align-items: flex-start;">
+<div class="col">
+<p><strong>Abstraction</strong></p>
+<p><br/></p>
+<p><img src="./pictures/dbt_simple.svg" style="height: 200px;"></p>
+</div>
+<div class="col fragment" style="border-left: 2px solid black;">
+<p><strong>Examples</strong></p>
+<p><img src="./pictures/dbts.svg" style="height: 300px;"></p>
+</div>
+<div class="col fragment" style="border-left: 2px solid black;">
+<p><strong>Usages</strong></p>
+<p><br/></p>
+<ul>
+<li>Migration</li>
+<li>Instrumentation</li>
+<li>Optimization</li>
+<li>…</li>
+</ul>
+</div>
+</div>
+<div class="fragment"
+style="position: absolute; left: 300px; top: 120px; transform: rotate(-10deg); color: red; Background: rgba(255,255,255,0.8); font-weight: bold;">
+<p>Regardless of various usages,</p>
+<div style="font-size: 3em;">
+<p>performance</p>
+</div>
+<p>is the primary design metric for all DBTs.</p>
+</div>
+</section>
+</section>
+<section>
+<section id="research-problem-performance"
+class="title-slide slide level1" data-number="3"
+data-stack-name="3.Problem">
+<h1 data-number="3" data-stack-name="3.Problem"><span
+class="header-section-number">3</span> <span
+style="font-size: 0.7em;">Research Problem: Performance</span></h1>
+<div class="container">
+<div class="col">
+<p><img src="./pictures/dbt_perf.svg" style="height: 500px;"></p>
+</div>
+<div class="col fragment" style="border-left: 2px solid black;">
+<p><strong>Example</strong></p>
+<p><img src="./pictures/dbt_perf_example.svg" style="height: 120px;"></p>
+<div class="fragment" style="border-top: 2px solid black;">
+<p><strong>Real world DBTs</strong></p>
+<p><img src="./plotly/bt_perf.svg" style="height: 230px;"></p>
+</div>
+</div>
+</div>
+<div class="container fragment"
+style="position: absolute; top: 390px; left: 550px;">
+<div class="col"
+style="width: 650px; height: 50px; border: 4px solid red;   font-size: 0.45em; text-align:right; color: red;">
+<p><strong>Performance</strong></p>
+<p><strong>gaps</strong></p>
+</div>
+</div>
+</section>
+<section id="how-to-characterize-performance"
+class="title-slide slide level2" data-number="3.1">
+<h2 data-number="3.1"><span class="header-section-number">3.1</span> How
+to characterize performance?</h2>
+<div class="container" style="align-items: flex-start;">
+<div class="col">
+<p><strong>Time🙀?</strong></p>
+<p><span style="font-size: 0.5em;">uArch: OoO, Multi-Iussed</span></p>
+<div class="fragment" data-fragment-index="1" style="font-size: 0.5em;">
+<table>
+<thead>
+<tr class="header">
+<th>DBT</th>
+<th style="text-align: center;">Translated_code/Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ExaGear</td>
+<td style="text-align: center;">99.44%</td>
+</tr>
+<tr class="even">
+<td>Rosetta2</td>
+<td style="text-align: center;">99.63%</td>
+</tr>
+<tr class="odd">
+<td>LATX</td>
+<td style="text-align: center;">99.87%</td>
+</tr>
+<tr class="even">
+<td>Box64</td>
+<td style="text-align: center;">98.9%</td>
+</tr>
+<tr class="odd">
+<td>FEX</td>
+<td style="text-align: center;">99.65%</td>
+</tr>
+<tr class="even">
+<td>QEMU</td>
+<td style="text-align: center;">99.93</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="col fragment" data-fragment-index="10"
+style="border-left: 2px solid black;">
+<p><strong><span
+style="color:red; font-size: 1.5em;">Inflation</span>😸!</strong></p>
+<p><br/></p>
+<p><img src="./pictures/dbt_inflt_example.svg" style="height: 200px;"></p>
+</div>
+<div class="col fragment" data-fragment-index="20"
+style="border-left: 2px solid black;">
+<p><strong>Performance<span
+style="color:red;">∝</span>Inflation</strong></p>
+<p><img src="./data/time_inst_3.png" style="height: 280px;"></p>
+</div>
+</div>
+<div class="fragment" data-fragment-index="20">
+<p>Higher inflation indicates greater performance slowdown.</p>
+</div>
+</section>
+</section>
+<section>
+<section id="related-work-performance-analysis"
+class="title-slide slide level1" data-number="4"
+data-stack-name="4.Related Work">
+<h1 data-number="4" data-stack-name="4.Related Work"><span
+class="header-section-number">4</span> Related Work: Performance
+Analysis</h1>
+<div class="container">
+<div class="col" style="font-size: 0.6em;">
+<p><strong>Overall Performance Analysis</strong></p>
+<ul>
+<li>Manual Analysis
+<ul>
+<li>Ottoni etc, Borin etc, Dey etc, …</li>
+</ul></li>
+<li>Benchmarks:
+<ul>
+<li>full-system: SimBench, VITS, HyperBench, …</li>
+<li>instruction: Fog’s testp, Uops.info, …</li>
+</ul></li>
+</ul>
+<div style="color: grey;">
+<ul>
+<li>Translation Auto Generation (Optimizations)
+<ul>
+<li>ISAMAP, Captive, learn, …</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div class="col" style="font-size: 0.6em; color:grey;">
+<p><strong>Specific Performance Analysis (Optimizations)</strong></p>
+<ul>
+<li>Software:
+<ul>
+<li>indirect branches, arithmetic flags, …</li>
+</ul></li>
+<li>Hardware:
+<ul>
+<li>Indirect branch lookup table</li>
+<li>VLIW: Transmeta’s Cruose, IBM’s DAISY, …</li>
+<li>Inst fusion</li>
+<li>ISA extension: LoongISA, LoongArch, …</li>
+<li>…</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="manual-analysis-ottoni-etc"
+class="title-slide slide level2" data-number="4.1">
+<h2 data-number="4.1"><span class="header-section-number">4.1</span>
+Manual Analysis: Ottoni etc</h2>
+<p><img src="./3rdParty/2011.harmonia.ottoni.cf.19.fig1.svg" style="height: 300px;"></p>
+<div class="ref" style="text-align: left;">
+<p><strong>Reference</strong>:</p>
+<ul>
+<li>Ottoni G, Hartin T, Weaver C, et al. Harmonia: A transparent,
+efficient, and harmonious dynamic binary translator targeting the Intel®
+architecture [C]//Proceedings of the ACM International Conference on
+Computing Frontiers. 2011: 1-10.</li>
+</ul>
+</div>
+<div class="fragment" data-fragment-index="1"
+style="position: absolute; left: 0; top: 100px; color: white; background: green; font-weight: bold; font-size: 0.8em;">
+<ul>
+<li>Systematic</li>
+</ul>
+</div>
+<div class="fragment" data-fragment-index="1"
+style="position: absolute; left: 0; top: 150px; color: white; background: red; font-weight: bold; font-size: 0.8em;">
+<ul>
+<li>Coarse-garined</li>
+<li>Need source code</li>
+</ul>
+</div>
+</section>
+
+<section id="micro-benchmarks-fogs-testp"
+class="title-slide slide level2" data-number="4.2">
+<h2 data-number="4.2"><span class="header-section-number">4.2</span>
+Micro Benchmarks: Fog’s testp</h2>
+<div class="container">
+<div class="col" style="font-size: 0.8em;">
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode nasm"><code class="sourceCode nasm"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">REPETITIONS1LOOP:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>&lt;testinit<span class="op">&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ot">%rep</span> REPETITIONS2</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  &lt;testcode<span class="op">&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ot">%endrep</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>&lt;testafter<span class="op">&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">dec</span> <span class="kw">r12d</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">jnz</span> REPETITIONS1LOOP</span></code></pre></div>
+</div>
+<div class="col">
+<p><img src="./3rdParty/2022.inst.fog.manual..haswell_partial.svg" style="height: 460px;">
+<span style="font-size: 0.3em;">…………</span></p>
+</div>
+</div>
+<div class="ref" style="text-align: left;">
+<p><strong>Reference</strong>:</p>
+<ul>
+<li>Fog A. X86-64 instruction test programs (testp) [EB/OL]. 2023.
+www.agner.org/optimize/testp.zip.</li>
+<li>Fog A. 4. Instruction tables: Lists of instruction latencies,
+throughputs and micro-operation breakdowns for Intel, AMD, and VIA CPUs
+[Z]. 2022.</li>
+</ul>
+</div>
+<div class="fragment" data-fragment-index="1"
+style="position: absolute; left: 0; top: 100px; color: white; background: green; font-weight: bold; font-size: 0.8em;">
+<ul>
+<li>Fine-grained (instruction-level)</li>
+</ul>
+</div>
+<div class="fragment" data-fragment-index="1"
+style="position: absolute; left: 0; top: 150px; color: white; background: red; font-weight: bold; font-size: 0.8em;">
+<ul>
+<li>Designed for uArch</li>
+<li>Lacks systematicity</li>
+</ul>
+</div>
+</section>
+</section>
+<section>
+<section id="design" class="title-slide slide level1" data-number="5"
+data-stack-name="5.Design">
+<h1 data-number="5" data-stack-name="5.Design"><span
+class="header-section-number">5</span> Design</h1>
+<p><strong>An Instruction Inflation Analyzing Framework for DBT: <span
+style="font-size: 1.5em;">Deflater</span></strong></p>
+<p><img src="./pictures/overview_annotated.svg" style="width: 1000px;"></p>
+<div style="font-size: 0.6em;">
+<blockquote>
+<p><strong>Reductionism</strong> is the view that a complex system is
+just the sum of its parts.</p>
+</blockquote>
+</div>
+<div class="fragment" data-fragment-index="1"
+style="position: absolute; left: 0; top: 100px; color: white; background: green; font-weight: bold; font-size: 0.8em;">
+<ul>
+<li>Systematic</li>
+<li>Fine-grained (instruction-level)</li>
+</ul>
+</div>
+</section>
+<section id="mathematical-model" class="title-slide slide level2"
+data-number="5.1">
+<h2 data-number="5.1"><span class="header-section-number">5.1</span>
+Mathematical Model</h2>
+<div style="font-size: 0.7em; text-align: left;">
+<p><strong>Observation</strong>: To preserve the guest’s <span
+style="color:red;">precise exception</span>, practical software-based
+DBTs tend not to employ optimizations that could potentially break <span
+style="color:red;">instruction boundaries</span>.</p>
+</div>
+<div style="font-size: 0.8em;">
+<p><span class="math display">\[
+Inflation = \frac{\#insts_{host}}{\#insts_{guest}}
+\]</span> <span class="math display">\[
+= \frac{
+\sum_i[\mathcal{E} inst_i \times \textrm{inf}({inst_i})]
+- \sum_j [\mathcal{E} TB_j \times \textrm{opt}(TB_j)]
+- \epsilon
+}{\sum_i\mathcal{E} inst_i}
+\]</span></p>
+</div>
+</section>
+
+<section id="benchmiaoes-inflatsim" class="title-slide slide level2"
+data-number="5.2">
+<h2 data-number="5.2"><span class="header-section-number">5.2</span>
+BenchMIAOes &amp; InflatSim</h2>
+<div class="container" style="align-items: flex-start;">
+<div class="col">
+<p><strong>BenchMIAOes</strong>(Micro benchmarks)</p>
+<div style="width: 400px; font-size: 0.8em;">
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode gnuassembler"><code class="sourceCode gnuassembler"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">LOOP:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>insts<span class="op">&gt;</span> <span class="co">/* repeat R times */</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">dec</span> <span class="op">&lt;</span>L<span class="op">&gt;</span> <span class="co">/* loop L times */</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">jne</span> LOOP</span></code></pre></div>
+<p><span class="math display">\[
+inflation \approx \frac{\#insts_{host\_perf}}{R \times L}
+\]</span></p>
+</div>
+</div>
+<div class="col fragment" data-fragment-index="1"
+style="border-left: 2px solid black;">
+<p><strong>InflatSim</strong>(Trace-based simulator)</p>
+<p><img src="./pictures/de-flate.svg" style="height: 250px;"></p>
+<p><span class="fragment" data-fragment-index="10">Like a non-functional
+DBT.</span></p>
+</div>
+</div>
+<div class="fragment" data-fragment-index="10"
+style="position: absolute; left: 0; top: 100px; height: 400px; background:white;">
+<p><strong>DBT</strong></p>
+<p><img src="./pictures/dbt.svg" style="height: 250px;"></p>
+</div>
+</section>
+</section>
+<section>
+<section id="evaluation-setups" class="title-slide slide level1"
+data-number="6" data-stack-name="6.Evaluation">
+<h1 data-number="6" data-stack-name="6.Evaluation"><span
+class="header-section-number">6</span> Evaluation Setups</h1>
+<div style="font-size: 0.7em;">
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 12%" />
+<col style="width: 19%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>DBT</th>
+<th>Company</th>
+<th>Version</th>
+<th>Guest</th>
+<th>Host</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ExaGear</td>
+<td>Huawei</td>
+<td>2.0.0.1</td>
+<td>x86_64 Linux</td>
+<td>Kunpeng (ARMv8.2-A) Linux</td>
+</tr>
+<tr class="even">
+<td>Rosetta2</td>
+<td>Apple</td>
+<td>289.7</td>
+<td>x86_64 Linux</td>
+<td>M-series (ARMv8.5-A) Linux</td>
+</tr>
+<tr class="odd">
+<td>LATX</td>
+<td>Loongson</td>
+<td>1.3.0</td>
+<td>x86_64 Linux</td>
+<td>LoongArch Linux</td>
+</tr>
+<tr class="even">
+<td>QEMU</td>
+<td>-</td>
+<td>8.0.0</td>
+<td>x86_64 Linux</td>
+<td>AArch64 Linux</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="evaluation-instruction-inflation"
+class="title-slide slide level2" data-number="6.1">
+<h2 data-number="6.1"><span class="header-section-number">6.1</span>
+Evaluation: Instruction Inflation</h2>
+<div style="font-size:0.6em;">
+<p>Dynamic code inflation of instructions extracted by BenchMIAOes from
+DBTs.</p>
+</div>
+<p><img src="./data/nanobenches_singles.png" style="width: 1100px;"></p>
+<div style="font-size:0.5em;">
+<p><strong>Dyn_Inst%</strong>: mov 17.32%, movss/d 14.26%, jcc 9.72%,
+add/subss/d 9.50%, add/sub 8.83%, cmp/test 8.66%, muls/ps/d 8.40%,
+movsx/sxd/zx 3.95%, push/pop 3.00%, lea 2.96%, and/or/xor 2.13%,
+call/ret 1.67%, sh/sal/r 1.46%, …</p>
+</div>
+<div style="font-size:0.6em;">
+<ul>
+<li>QEMU: high inflation;</li>
+<li>ExaGear, Rosetta2, LATX: inflation <span
+style="font-size: 0.9em;">&gt;1</span>, <span
+style="font-size: 1.4em;">≈1</span>, <span
+style="font-size: 0.6em;">&lt;1</span>.</li>
+</ul>
+</div>
+</section>
+
+<section id="evaluation-optimizations" class="title-slide slide level2"
+data-number="6.2">
+<h2 data-number="6.2"><span class="header-section-number">6.2</span>
+Evaluation: Optimizations</h2>
+<div class="container" style="font-size: 0.6em;">
+<div class="col">
+<div style="height: 280px;">
+<p><img src="./pictures/opt_detect_mul.svg" style="height: 260px;"></p>
+</div>
+<hr/>
+<p>Dead code elimination. If the %rdx is unused, DBT does not calculate
+the product’s higher bits.</p>
+</div>
+<div class="col" style="border-left: 2px solid black;">
+<div style="height: 280px;">
+<p><img src="./pictures/opt_detect_sibd.svg" style="height: 280px;"></p>
+</div>
+<hr/>
+<p>Address pre-calculation. If the same address is used multiple times,
+DBT pre-calculates the address.</p>
+</div>
+</div>
+</section>
+
+<section id="evaluation-overall" class="title-slide slide level2"
+data-number="6.3">
+<h2 data-number="6.3"><span class="header-section-number">6.3</span>
+Evaluation: Overall</h2>
+<p><img src="./data/insts_inflt_breakdown_2017.png" style="width: 1000px;">
+<img src="./data/insts_inflt_breakdown_2017_opt.png" style="width: 1000px;"></p>
+</section>
+</section>
+<section>
+<section id="application-opt-workflows" class="title-slide slide level1"
+data-number="7" data-stack-name="7.Application">
+<h1 data-number="7" data-stack-name="7.Application"><span
+class="header-section-number">7</span> <span
+style="font-size: 0.8em;">Application: Opt Workflows</span></h1>
+<p><img src="./pictures/guide_opt.svg" style="width: 1200px;"></p>
+<div style="font-size: 0.6em;">
+<p>The DBT optimization workflows without the guide of Deflater (left),
+and with the guide of Deflater (right).</p>
+</div>
+<div class="fragment">
+<div style="position: absolute; font-size: 2em; top: 35%; left: 20%;">
+<p>😿</p>
+</div>
+<div style="position: absolute; font-size: 2em; top: 55%; left: 48%;">
+<p>😸</p>
+</div>
+</div>
+</section>
+<section id="application-opt-qemu" class="title-slide slide level2"
+data-number="7.1">
+<h2 data-number="7.1"><span class="header-section-number">7.1</span>
+Application: Opt QEMU</h2>
+<div class="container" style="align-items: flex-start">
+<div class="col">
+<p><strong>A Potential Optimization</strong></p>
+<p><img src="pictures/qemu_tcg_opt.svg"></p>
+<div style="font-size: 0.5em;">
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Simulation</th>
+<th>SLOC</th>
+<th>time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Deflater</td>
+<td>trace</td>
+<td>≈400</td>
+<td>hours</td>
+</tr>
+<tr class="even">
+<td>Real Implement</td>
+<td>functional</td>
+<td>≈8000</td>
+<td>weeks</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="col fragment" style="border-left: 2px solid black;">
+<p><strong>Evaluation</strong></p>
+<div style="font-size: 0.5em;">
+<table>
+<thead>
+<tr class="header">
+<th>Before Opt</th>
+<th>CINT2017</th>
+<th>CFP2017</th>
+<th>Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Deflater</td>
+<td>9.97</td>
+<td>28.63</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Real</td>
+<td>9.87</td>
+<td>28.50</td>
+<td>6.61%</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<table>
+<thead>
+<tr class="header">
+<th>After Opt</th>
+<th>CINT2017</th>
+<th>CFP2017</th>
+<th>Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Deflater</td>
+<td>1.58</td>
+<td>1.60</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Real</td>
+<td>1.62</td>
+<td>1.55</td>
+<td>4.64%</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<table>
+<thead>
+<tr class="header">
+<th>Result</th>
+<th>CINT2017</th>
+<th>CFP2017</th>
+<th>Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Inflation Reduced</td>
+<td>83.59%</td>
+<td>94.56%</td>
+<td>4.64%</td>
+</tr>
+<tr class="even">
+<td>Performance</td>
+<td>x2.99</td>
+<td>x7.12</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="summary" class="title-slide slide level1" data-number="8"
+data-name="8.Summary">
+<h1 data-number="8" data-name="8.Summary"><span
+class="header-section-number">8</span> Summary</h1>
+<div style="font-size: 0.8em;">
+<ul>
+<li><strong>An inflation analyzing framework: Deflater</strong>
+<ul>
+<li>A mathematical model</li>
+<li>A collection of Micro Benchmarks: BenchMIAOes</li>
+<li>A inflation simulator: InflatSim</li>
+</ul></li>
+<li><strong>Analyzed 3 commercial DBTs 1 open-source DBT</strong>
+<ul>
+<li>High correlation</li>
+<li>Low simulation error</li>
+</ul></li>
+<li><strong>Applied to QEMU optimization</strong>
+<ul>
+<li>Efficient simulation</li>
+<li>Accurate suggestion</li>
+</ul></li>
+</ul>
+</div>
+</section>
+
+<section id="thanks" class="title-slide slide level1 slide-count-end"
+data-number="9"
+data-background-image="https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/liquid-cheese_sky_title.svg">
+<h1 class="slide-count-end" data-number="9"
+data-background-image="https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/liquid-cheese_sky_title.svg"><span
+class="header-section-number">9</span> 🎉Thanks🎉</h1>
+<div class="fragment">
+<h2>
+QnA
+</h2>
+<p><img src="./emojikitchen/u1f9d0_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f60e_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f62a_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f62f_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1fae1_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f917_u1f431.png" style="height:1.5em;"></p>
+<p><img src="./emojikitchen/u1f914_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f92d_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f92f_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f611_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f617_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f917_u1f431.png" style="height:1.5em;"></p>
+<p><img src="./emojikitchen/u1f971_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f636_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f914_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f917_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f928_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f914_u1f431.png" style="height:1.5em;"></p>
+</div>
+</section>
+
+<section id="backup" class="title-slide slide level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span>
+Backup</h1>
+
+</section>
+    </div>
+  </div>
+  <div id=headerl style="position:absolute; top:0;    left:0;  padding:0.5em; font-size:16pt;"></div>
+  <div id=headerr style="position:absolute; top:0;    right:0; padding:0.5em; font-size:16pt;"></div>
+  <div id=footerl style="position:absolute; bottom:0; left:0;  padding:0.5em; font-size:16pt;"><span
+style="color:#01378c; font-size:0.8em;"> An Instruction Inflation
+Analyzing Framework for DBTs・Xie Benyi, etc. </span></div>
+  <div id=footerr style="position:absolute; bottom:0; right:0; padding:0.5em; font-size:16pt;"></div>
+
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/dist/reveal.js"></script>
+
+  <!-- reveal.js plugins -->
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/plugin/notes/notes.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/plugin/search/search.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/plugin/zoom/zoom.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js/plugin/math/math.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-plugins/chalkboard/plugin.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-plugins/customcontrols/plugin.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-simplemenu/simpleMenu.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-menu/menu.js"></script>
+  <script src="https://xieby1.github.io/markdown_revealjs/lib/reveal.js-verticator/plugin/verticator/verticator.js"></script>
+  <script>
+  var title_slide = document.getElementById("title-slide")
+  title_slide.setAttribute("data-background-image", "https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/liquid-cheese_sky_title.svg")
+  </script>
+  <script>
+  var toc_slide = document.getElementById("TOC")
+  if (toc_slide)
+    toc_slide.setAttribute("data-background-image", "https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/liquid-cheese_sky_l1.svg")
+  </script>
+  <script>
+  // inspired by https://github.com/hakimel/reveal.js/issues/1227
+  for (var slide of document.getElementsByClassName('slide level1')){
+    if (!(slide.getAttribute('data-background') ||
+          slide.getAttribute('data-background-color') ||
+          slide.getAttribute('data-background-image') ||
+          slide.getAttribute('data-background-video') ||
+          slide.getAttribute('data-background-iframe'))){
+      slide.setAttribute('data-background-image', 'https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/liquid-cheese_sky_l1.svg')
+    }
+  }
+  </script>
+  <script>
+  for (var slide of document.getElementsByClassName('slide level2')){
+    if (!(slide.getAttribute('data-background') ||
+          slide.getAttribute('data-background-color') ||
+          slide.getAttribute('data-background-image') ||
+          slide.getAttribute('data-background-video') ||
+          slide.getAttribute('data-background-iframe'))){
+      slide.setAttribute('data-background-image', 'https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/liquid-cheese_sky_l2.svg')
+    }
+  }
+  </script>
+  <script>
+  for (var slide of document.getElementsByClassName('slide level3')){
+    if (!(slide.getAttribute('data-background') ||
+          slide.getAttribute('data-background-color') ||
+          slide.getAttribute('data-background-image') ||
+          slide.getAttribute('data-background-video') ||
+          slide.getAttribute('data-background-iframe'))){
+      slide.setAttribute('data-background-image', 'https://xieby1.github.io/markdown_revealjs/themes/ucas_ict_thesis/liquid-cheese_sky_l3.svg')
+    }
+  }
+  </script>
+  <script>
+  for (var slide of document.getElementsByTagName('section')){
+    if (!(slide.getAttribute('data-background-size'))){
+      slide.setAttribute('data-background-size', 'cover')
+    }
+  }
+  </script>
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+        // Display controls in the bottom right corner
+        controls: true,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: true,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'bottom-right',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        // * h.v Horizontal . Vertical slide number (default)
+        // * h/v Horizontal / Vertical slide number
+        // * c Flattened slide number, including both horizontal and vertical slides
+        // * c/t Flattened slide number / total slides
+        slideNumber: slide => {
+            let slideEndCount = document.getElementsByClassName("slide-count-end")[0]
+            let endCount = slideEndCount ?
+                Reveal.getSlidePastCount( slideEndCount ) + 1 :
+                Reveal.getTotalSlides();
+            // see reveal.js/js/controllers/slidenumber.js
+            // Offset the current slide number by 1 to make it 1-indexed
+            let horizontalOffset = slide && slide.dataset.visibility === 'uncounted' ? 0 : 1;
+            return [
+                Reveal.getSlidePastCount( slide ) + horizontalOffset,
+                '/',
+                endCount,
+            ];
+        },
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: false,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: true,
+
+        // Enables touch navigation on devices with touch input
+        touch: false,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'default',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: true,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'slide',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'fade',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1200,
+
+        height: 700,
+
+        math: {
+          mathjax: 'https://xieby1.github.io/markdown_revealjs/lib/MathJax/es5/tex-chtml-full.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        chalkboard: {
+          theme: "whiteboard",
+        },
+        simplemenu: {
+          barhtml: {
+            header: "<div class='simplemenubar'><ul class='simplemenu'></ul></div>",
+            footer: "",
+          },
+          menubarclass: "simplemenubar",
+          menuclass: "simplemenu",
+          csspath: false,
+        },
+        menu: {
+          sticky: true,
+        },
+        customcontrols: {
+          controls: [
+            {
+              icon: '<i class="fas fa-expand"></i>',
+              title: 'Toggle fullscreen',
+              action: 'document.documentElement.requestFullscreen()'
+            },
+            {
+              icon: '<i class="fa fa-th"></i>',
+              title: 'Toggle overview (O,Esc)',
+              action: 'Reveal.toggleOverview();'
+            },
+            { icon: '<i class="fa fa-pen-square"></i>',
+              title: 'Toggle chalkboard (B)',
+              action: 'RevealChalkboard.toggleChalkboard();'
+            },
+            { icon: '<i class="fa fa-pen"></i>',
+              title: 'Toggle notes canvas (C)',
+              action: 'RevealChalkboard.toggleNotesCanvas();'
+            },
+            {
+              icon: '<i class="fa fa-print"></i>',
+              title: 'Print PDF Mode',
+              action: "window.location.search = 'print-pdf';"
+            },
+          ]
+        },
+        // reveal.js plugins
+        plugins: [
+          RevealMath,
+          RevealChalkboard,
+          RevealCustomControls,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom,
+          Simplemenu,
+          RevealMenu,
+          Verticator,
+        ],
+      });
+      Reveal.addKeyBinding( { keyCode: 9,  key: "Tab",   description: "Left"  }, () => {Reveal.left()} )
+      Reveal.addKeyBinding( { keyCode: 13, key: "Enter", description: "Right" }, () => {Reveal.right()} )
+      // make customcontrols collapsed by default
+      Reveal.on("ready", event => {
+        var div = document.querySelector("div#customcontrols");
+        div.classList.add('collapsed');
+        document.addEventListener("resize", event => {
+          // make sure customcontrols are collapsed
+          var div = document.querySelector("div#customcontrols");
+          div.classList.add('collapsed');
+        });
+      });
+    </script>
+    <script>
+      const headerl = document.getElementById("headerl");
+      const headerr = document.getElementById("headerr");
+      const footerl = document.getElementById("footerl");
+      const footerr = document.getElementById("footerr");
+      Reveal.on('pdf-ready', () => {
+        document.querySelectorAll('.pdf-page').forEach(page => {
+          page.appendChild(headerl.cloneNode(true));
+          page.appendChild(headerr.cloneNode(true));
+          page.appendChild(footerl.cloneNode(true));
+          page.appendChild(footerr.cloneNode(true));
+        });
+      })
+    </script>
+    </body>
+</html>

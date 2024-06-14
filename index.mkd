@@ -1,0 +1,544 @@
+---
+title:
+  <span style="font-size:0.6em;">
+    An Instruction Inflation Analyzing Framework for Dynamic Binary Translators
+  </span>
+  <br/>
+  <span style="font-size:0.5em;">
+    （动态二进制翻译器的指令膨胀分析框架）
+  <span>
+
+author:
+  <span style="line-height:2;">
+    <img src="$reporoot-url$/images/me.png" style="height:1em;">
+    Xie Benyi[1,2]{.cite}<span style="font-size:0.9em;">（谢本壹）</span>
+  </span>
+  <br/>
+  <span style="font-size:0.7em;">
+    🧑Yan Yue[1,2]{.cite},
+    🧑Yan Chenghao[1,2]{.cite},
+    🧑Tao Sicheng[3]{.cite},
+    🧑Zhang Zhuangzhuang[3]{.cite},
+    🧑Li Xinyu[1,2]{.cite},
+    🧑Lan Yanzhi[1,2]{.cite},
+    🧑Wu Xiang[1,2]{.cite},
+    👨Liu Tianyi[4]{.cite},
+    👩Zhang Tingting[1,5]{.cite},
+    👨‍🏫Zhang Fuxin[1,2]{.cite}
+  </span>
+  <br/>
+  <span style="color:#01378c; font-size:0.8em;">
+    <img src="$reporoot-url$/themes/ucas_ict_thesis/ict_logo.svg" style="height:0.8em; margin:0;">
+    计算所[1]{.cite}
+    ,
+    <img src="$reporoot-url$/themes/ucas_ict_thesis/ucas_logo.svg" style="height:0.8em; margin:0;">
+    国科大[2]{.cite}
+    ,
+    <img src="./images/ustc_logo_fig.svg" style="height:0.8em; margin:0;">
+    中科大[3]{.cite}
+    ,
+    <img src="./images/UTSA_Athletics_logo.svg" style="height:0.8em; margin:0;">
+    UTSA[4]{.cite}
+    ,
+    <img src="$reporoot-url$/themes/loongson/logo.png" style="height:0.8em; margin:0;">
+    龙芯[5]{.cite}
+  </span>
+
+date:
+  <span style="line-height:2;">
+    ChinaSys 2024 2024.6.16
+  </span>
+
+footerl:
+  <span style="color:#01378c; font-size:0.8em;">
+    An Instruction Inflation Analyzing Framework for DBTs・Xie Benyi, etc.
+  </span>
+
+title-slide-background-image:  $reporoot-url$/themes/ucas_ict_thesis/liquid-cheese_sky_title.svg
+toc-slide-background-image:    $reporoot-url$/themes/ucas_ict_thesis/liquid-cheese_sky_l1.svg
+level1-slide-background-image: $reporoot-url$/themes/ucas_ict_thesis/liquid-cheese_sky_l1.svg
+level2-slide-background-image: $reporoot-url$/themes/ucas_ict_thesis/liquid-cheese_sky_l2.svg
+level3-slide-background-image: $reporoot-url$/themes/ucas_ict_thesis/liquid-cheese_sky_l3.svg
+background-size: cover
+
+pandoc-opts: "--toc=false"
+---
+
+# TOC {data-sminvisible=true data-name="1.TOC"}
+
+<style>
+.reveal h1.title {
+  line-height: 0.6em;
+}
+.cite {
+  font-size: 0.4em;
+  vertical-align: top;
+}
+.ref {
+  font-size: 0.4em;
+}
+</style>
+
+1. TOC
+2. Background
+3. Problem
+4. Related Work
+5. Design
+6. Evaluation
+7. Application
+8. Summary
+
+# Background {data-stack-name="2.Background"}
+
+**Dynamic Binary Translator (DBT)**
+
+::: {.container style="align-items: flex-start;"}
+:::: {.col}
+<img src="./pictures/dbt.svg" style="height: 300px;">
+
+[**Translation Block (TB)**: control-transfer-ended instruction block]{style="font-size: 0.5em;"}
+::::
+:::: {.col style="font-size: 0.9em;"}
+```cpp
+Insn ** trans(Insn *ginsn) {
+  switch (ginsn->op_type) {
+    case X86_ADD: case X86_SUB:
+      return trans_addsub(ginsn);
+    case X86_MOV:
+      return trans_mov(ginsn);
+    case X86_CALL:
+      return trans_call(ginsn);
+    // other cases ...
+  }
+}
+```
+::::
+:::
+
+## Overview: DBTs
+
+::: {.container style="align-items: flex-start;"}
+:::: {.col}
+**Abstraction**
+
+<br/>
+
+<img src="./pictures/dbt_simple.svg" style="height: 200px;">
+::::
+:::: {.col .fragment style="border-left: 2px solid black;"}
+**Examples**
+
+<img src="./pictures/dbts.svg" style="height: 300px;">
+::::
+:::: {.col .fragment style="border-left: 2px solid black;"}
+**Usages**
+
+<br/>
+
+* Migration
+* Instrumentation
+* Optimization
+* ...
+::::
+:::
+
+::: {.fragment style="position: absolute; left: 300px; top: 120px; transform: rotate(-10deg); color: red; Background: rgba(255,255,255,0.8); font-weight: bold;"}
+Regardless of various usages,
+
+:::: {style="font-size: 3em;"}
+performance
+::::
+
+is the primary design metric for all DBTs.
+:::
+
+# [Research Problem: Performance]{style="font-size: 0.7em;"} {data-stack-name="3.Problem"}
+
+::: {.container}
+:::: {.col}
+<img src="./pictures/dbt_perf.svg" style="height: 500px;">
+::::
+:::: {.col .fragment style="border-left: 2px solid black;"}
+
+**Example**
+
+<img src="./pictures/dbt_perf_example.svg" style="height: 120px;">
+
+::::: {.fragment style="border-top: 2px solid black;"}
+**Real world DBTs**
+
+<img src="./plotly/bt_perf.svg" style="height: 230px;">
+:::::
+
+::::
+:::
+
+::: {.container .fragment style="position: absolute; top: 390px; left: 550px;"}
+:::: {.col style="width: 650px; height: 50px; border: 4px solid red;   font-size: 0.45em; text-align:right; color: red;"}
+**Performance**
+
+**gaps**
+::::
+:::
+
+## How to characterize performance?
+
+::: {.container style="align-items: flex-start;"}
+:::: {.col}
+**Time🙀?**
+
+[uArch: OoO, Multi-Iussed]{style="font-size: 0.5em;"}
+
+::::: {.fragment data-fragment-index=1 style="font-size: 0.5em;"}
+| DBT      | Translated_code/Total |
+|----------|:---------------------:|
+| ExaGear  | 99.44%                |
+| Rosetta2 | 99.63%                |
+| LATX     | 99.87%                |
+| Box64    | 98.9%                 |
+| FEX      | 99.65%                |
+| QEMU     | 99.93                 |
+:::::
+::::
+:::: {.col .fragment data-fragment-index=10 style="border-left: 2px solid black;"}
+**[Inflation]{style="color:red; font-size: 1.5em;"}😸!**
+
+<br/>
+
+<img src="./pictures/dbt_inflt_example.svg" style="height: 200px;">
+::::
+:::: {.col .fragment data-fragment-index=20 style="border-left: 2px solid black;"}
+**Performance[∝]{style="color:red;"}Inflation**
+
+<img src="./data/time_inst_3.png" style="height: 280px;">
+::::
+:::
+
+::: {.fragment data-fragment-index=20}
+Higher inflation indicates greater performance slowdown.
+:::
+
+# Related Work: Performance Analysis {data-stack-name="4.Related Work"}
+
+::: {.container}
+:::: {.col style="font-size: 0.6em;"}
+**Overall Performance Analysis**
+
+* Manual Analysis
+  * Ottoni etc, Borin etc, Dey etc, ...
+* Benchmarks:
+  * full-system: SimBench, VITS, HyperBench, ...
+  * instruction: Fog's testp, Uops.info, ...
+
+::::: {style="color: grey;"}
+* Translation Auto Generation (Optimizations)
+  * ISAMAP, Captive, learn, ...
+:::::
+::::
+:::: {.col style="font-size: 0.6em; color:grey;"}
+**Specific Performance Analysis (Optimizations)**
+
+* Software:
+  * indirect branches, arithmetic flags, ...
+* Hardware:
+  * Indirect branch lookup table
+  * VLIW: Transmeta's Cruose, IBM's DAISY, ...
+  * Inst fusion
+  * ISA extension: LoongISA, LoongArch, ...
+  * ...
+::::
+:::
+
+## Manual Analysis: Ottoni etc
+
+<img src="./3rdParty/2011.harmonia.ottoni.cf.19.fig1.svg" style="height: 300px;">
+
+::: {.ref style="text-align: left;"}
+**Reference**:
+
+* Ottoni G, Hartin T, Weaver C, et al. Harmonia: A transparent, efficient, and harmonious dynamic binary translator targeting the Intel® architecture [C]//Proceedings of the ACM International Conference on Computing Frontiers. 2011: 1-10.
+:::
+
+::: {.fragment data-fragment-index=1 style="position: absolute; left: 0; top: 100px; color: white; background: green; font-weight: bold; font-size: 0.8em;"}
+* Systematic
+:::
+::: {.fragment data-fragment-index=1 style="position: absolute; left: 0; top: 150px; color: white; background: red; font-weight: bold; font-size: 0.8em;"}
+* Coarse-garined
+* Need source code
+:::
+
+## Micro Benchmarks: Fog's testp
+
+::: {.container}
+:::: {.col style="font-size: 0.8em;"}
+```nasm
+REPETITIONS1LOOP:
+<testinit>
+%rep REPETITIONS2
+  <testcode>
+%endrep
+<testafter>
+dec r12d
+jnz REPETITIONS1LOOP
+```
+::::
+:::: {.col}
+<img src="./3rdParty/2022.inst.fog.manual..haswell_partial.svg" style="height: 460px;">
+[............]{style="font-size: 0.3em;"}
+
+::::
+:::
+
+::: {.ref style="text-align: left;"}
+**Reference**:
+
+* Fog A. X86-64 instruction test programs (testp) [EB/OL]. 2023. www.agner.org/optimize/testp.zip.
+* Fog A. 4. Instruction tables: Lists of instruction latencies, throughputs and micro-operation breakdowns for Intel, AMD, and VIA CPUs [Z]. 2022.
+:::
+
+::: {.fragment data-fragment-index=1 style="position: absolute; left: 0; top: 100px; color: white; background: green; font-weight: bold; font-size: 0.8em;"}
+* Fine-grained (instruction-level)
+:::
+::: {.fragment data-fragment-index=1 style="position: absolute; left: 0; top: 150px; color: white; background: red; font-weight: bold; font-size: 0.8em;"}
+* Designed for uArch
+* Lacks systematicity
+:::
+
+# Design {data-stack-name="5.Design"}
+
+**An Instruction Inflation Analyzing Framework for DBT: [Deflater]{style="font-size: 1.5em;"}**
+
+<img src="./pictures/overview_annotated.svg" style="width: 1000px;">
+
+::: {style="font-size: 0.6em;"}
+> **Reductionism** is the view that a complex system is just the sum of its parts.
+
+:::
+
+::: {.fragment data-fragment-index=1 style="position: absolute; left: 0; top: 100px; color: white; background: green; font-weight: bold; font-size: 0.8em;"}
+* Systematic
+* Fine-grained (instruction-level)
+:::
+
+## Mathematical Model
+
+::: {style="font-size: 0.7em; text-align: left;"}
+**Observation**:
+To preserve the guest’s [precise exception]{style="color:red;"},
+practical software-based DBTs tend not to employ optimizations that could potentially break [instruction boundaries]{style="color:red;"}.
+:::
+
+::: {style="font-size: 0.8em;"}
+$$
+Inflation = \frac{\#insts_{host}}{\#insts_{guest}}
+$$
+$$
+= \frac{
+\sum_i[\mathcal{E} inst_i \times \textrm{inf}({inst_i})]
+- \sum_j [\mathcal{E} TB_j \times \textrm{opt}(TB_j)]
+- \epsilon
+}{\sum_i\mathcal{E} inst_i}
+$$
+:::
+
+
+## BenchMIAOes & InflatSim
+
+::: {.container style="align-items: flex-start;"}
+:::: {.col}
+**BenchMIAOes**(Micro benchmarks)
+
+::::: {style="width: 400px; font-size: 0.8em;"}
+```gnuassembler
+LOOP:
+<insts> /* repeat R times */
+dec <L> /* loop L times */
+jne LOOP
+```
+
+$$
+inflation \approx \frac{\#insts_{host\_perf}}{R \times L}
+$$
+:::::
+::::
+:::: {.col .fragment data-fragment-index=1 style="border-left: 2px solid black;"}
+**InflatSim**(Trace-based simulator)
+
+<img src="./pictures/de-flate.svg" style="height: 250px;">
+
+[Like a non-functional DBT.]{.fragment data-fragment-index=10}
+::::
+:::
+
+::: {.fragment data-fragment-index=10 style="position: absolute; left: 0; top: 100px; height: 400px; background:white;"}
+**DBT**
+
+<img src="./pictures/dbt.svg" style="height: 250px;">
+:::
+
+# Evaluation Setups {data-stack-name="6.Evaluation"}
+
+::: {style="font-size: 0.7em;"} 
+| DBT      | Company  | Version | Guest        | Host                       |
+|----------|----------|---------|--------------|----------------------------|
+| ExaGear  | Huawei   | 2.0.0.1 | x86_64 Linux | Kunpeng (ARMv8.2-A) Linux  |
+| Rosetta2 | Apple    | 289.7   | x86_64 Linux | M-series (ARMv8.5-A) Linux |
+| LATX     | Loongson | 1.3.0   | x86_64 Linux | LoongArch Linux            |
+| QEMU     | -        | 8.0.0   | x86_64 Linux | AArch64 Linux              |
+:::
+
+## Evaluation: Instruction Inflation
+
+::: {style="font-size:0.6em;"}
+Dynamic code inflation of instructions extracted by BenchMIAOes from DBTs.
+:::
+
+<img src="./data/nanobenches_singles.png" style="width: 1100px;">
+
+::: {style="font-size:0.5em;"}
+**Dyn_Inst%**:
+mov 17.32%, movss/d 14.26%, jcc 9.72%, add/subss/d 9.50%, add/sub 8.83%,
+cmp/test 8.66%, muls/ps/d 8.40%, movsx/sxd/zx 3.95%, push/pop 3.00%, lea 2.96%,
+and/or/xor 2.13%, call/ret 1.67%, sh/sal/r 1.46%, ...
+:::
+
+::: {style="font-size:0.6em;"}
+* QEMU: high inflation;
+* ExaGear, Rosetta2, LATX: inflation
+[>1]{style="font-size: 0.9em;"},
+[≈1]{style="font-size: 1.4em;"},
+[<1]{style="font-size: 0.6em;"}.
+:::
+
+## Evaluation: Optimizations
+
+::: {.container style="font-size: 0.6em;"}
+:::: {.col}
+::::: {style="height: 280px;"}
+<img src="./pictures/opt_detect_mul.svg" style="height: 260px;">
+:::::
+
+<hr/>
+
+Dead code elimination. If the %rdx is unused, DBT does not calculate the product’s higher bits.
+::::
+:::: {.col style="border-left: 2px solid black;"}
+::::: {style="height: 280px;"}
+<img src="./pictures/opt_detect_sibd.svg" style="height: 280px;">
+:::::
+
+<hr/>
+
+Address pre-calculation. If the same address is used multiple times, DBT pre-calculates the address.
+::::
+:::
+
+## Evaluation: Overall
+
+<img src="./data/insts_inflt_breakdown_2017.png" style="width: 1000px;">
+<img src="./data/insts_inflt_breakdown_2017_opt.png" style="width: 1000px;">
+
+# [Application: Opt Workflows]{style="font-size: 0.8em;"} {data-stack-name="7.Application"}
+
+<img src="./pictures/guide_opt.svg" style="width: 1200px;">
+
+::: {style="font-size: 0.6em;"}
+The DBT optimization workflows without the guide of Deflater (left), and with the guide of Deflater (right).
+:::
+
+::: {.fragment}
+:::: {style="position: absolute; font-size: 2em; top: 35%; left: 20%;"}
+😿
+::::
+:::: {style="position: absolute; font-size: 2em; top: 55%; left: 48%;"}
+😸
+::::
+:::
+
+## Application: Opt QEMU
+
+::: {.container style="align-items: flex-start"}
+:::: {.col}
+**A Potential Optimization**
+
+<img src="pictures/qemu_tcg_opt.svg">
+
+::::: {style="font-size: 0.5em;"}
+|                | Simulation | SLOC  | time  |
+|----------------|------------|-------|-------|
+| Deflater       | trace      | ≈400  | hours |
+| Real Implement | functional | ≈8000 | weeks |
+:::::
+
+::::
+:::: {.col .fragment style="border-left: 2px solid black;"}
+**Evaluation**
+
+::::: {style="font-size: 0.5em;"}
+
+| Before Opt | CINT2017 | CFP2017 | Error |
+|------------|----------|---------|-------|
+| Deflater   | 9.97     | 28.63   | -     |
+| Real       | 9.87     | 28.50   | 6.61% |
+
+<hr/>
+
+| After  Opt | CINT2017 | CFP2017 | Error |
+|------------|----------|---------|-------|
+| Deflater   | 1.58     | 1.60    | -     |
+| Real       | 1.62     | 1.55    | 4.64% |
+
+<hr/>
+
+| Result            | CINT2017 | CFP2017 | Error |
+|-------------------|----------|---------|-------|
+| Inflation Reduced | 83.59%   | 94.56%  | 4.64% |
+| Performance       | x2.99    | x7.12   | -     |
+:::::
+
+::::
+:::
+
+# Summary {data-name="8.Summary"}
+
+::: {style="font-size: 0.8em;"}
+* **An inflation analyzing framework: Deflater**
+  * A mathematical model
+  * A collection of Micro Benchmarks: BenchMIAOes
+  * A inflation simulator: InflatSim
+* **Analyzed 3 commercial DBTs 1 open-source DBT**
+  * High correlation
+  * Low simulation error
+* **Applied to QEMU optimization**
+  * Efficient simulation
+  * Accurate suggestion
+:::
+
+# 🎉Thanks🎉 {.slide-count-end data-background-image="$reporoot-url$/themes/ucas_ict_thesis/liquid-cheese_sky_title.svg"}
+
+::: {.fragment}
+<h2>QnA</h2>
+
+<img src="./emojikitchen/u1f9d0_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f60e_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f62a_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f62f_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1fae1_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f917_u1f431.png" style="height:1.5em;">
+
+<img src="./emojikitchen/u1f914_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f92d_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f92f_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f611_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f617_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f917_u1f431.png" style="height:1.5em;">
+
+<img src="./emojikitchen/u1f971_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f636_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f914_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f917_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f928_u1f431.png" style="height:1.5em;">
+<img src="./emojikitchen/u1f914_u1f431.png" style="height:1.5em;">
+:::
+
+# Backup
