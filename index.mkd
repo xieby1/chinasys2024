@@ -51,7 +51,11 @@ date:
 
 footerl:
   <span style="color:#01378c; font-size:0.8em;">
-    An Instruction Inflation Analyzing Framework for DBTs・Xie Benyi, etc.
+    An Instruction Inflation Analyzing Framework for DBTs
+    ・
+    Xie Benyi, etc.
+    ・
+    https://xieby1.github.io/chinasys2024
   </span>
 
 title-slide-background-image:  $reporoot-url$/themes/ucas_ict_thesis/liquid-cheese_sky_title.svg
@@ -165,7 +169,7 @@ is the primary design metric for all DBTs.
 <img src="./pictures/dbt_perf_example.svg" style="height: 120px;">
 
 ::::: {.fragment style="border-top: 2px solid black;"}
-**Real world DBTs**
+**Real world DBTs[(computational workloads)]{style="font-size:0.7em;"}**
 
 <img src="./plotly/bt_perf.svg" style="height: 230px;">
 :::::
@@ -173,7 +177,7 @@ is the primary design metric for all DBTs.
 ::::
 :::
 
-::: {.container .fragment style="position: absolute; top: 390px; left: 550px;"}
+::: {.container .fragment style="position: absolute; top: 392px; left: 550px;"}
 :::: {.col style="width: 650px; height: 50px; border: 4px solid red;   font-size: 0.45em; text-align:right; color: red;"}
 **Performance**
 
